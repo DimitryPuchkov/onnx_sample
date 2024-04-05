@@ -20,15 +20,18 @@ namespace Onnx_sample
     {
         public static void Main(string[] args)
         {
-
-
-
-
-
-
-
-            Console.WriteLine("done");
+            string[] imagesPaths = { "./images/000001.jpg", "./images/000002.jpg", "./images/000003.jpg" };
+            var detector = new DetectionWrapper();
+            var sort = new Sort(15);
+            foreach (string imagePath in imagesPaths)
+            {
+                using Image<Rgb24> image = Image.Load<Rgb24>(imagePath);
+                var dets = detector.Detect(image);
+                var finalBoxes = sort.Update(dets);
+                Console.WriteLine(finalBoxes);
+            }
         }
+
 
         public static void DetectionSample()
         {
@@ -36,7 +39,7 @@ namespace Onnx_sample
 
 
             // Read Image
-            string imageFilePath = "./images/000001.jpg";
+            string imageFilePath = "./imagesPaths/000001.jpg";
             using Image<Rgb24> image = Image.Load<Rgb24>(imageFilePath);
             var image_orig = image.Clone();
 

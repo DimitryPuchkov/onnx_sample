@@ -14,10 +14,12 @@ namespace onnx_sample
         const double stdWeightPosition = 1.0 / 20.0;
         const double stdWeightVelocity = 1.0 / 160.0;
         public int TimeScinceUpdate { get; set; }
-        public static int Id { get; set; } = 0;
+        private static int count = 0;
+        public int TrackerID { get; set; }
         public KalmanBoxTracker(Box box) 
         {
-            KalmanBoxTracker.Id++;
+            KalmanBoxTracker.count++;
+            TrackerID = count;
             var M = Matrix<double>.Build;
             Matrix<double> x0 = M.Dense(8, 1, 0);
             var z = convertBoxToZ(box);
@@ -50,8 +52,8 @@ namespace onnx_sample
             };
             H = M.DenseOfArray(HArr);
 
-            Q = M.Dense(8, 1);
-            R = M.Dense(4, 1);
+            Q = M.Dense(8, 8);
+            R = M.Dense(4, 4);
             kf = new DiscreteKalmanFilter(x0, P0);
 
             TimeScinceUpdate = 0;
@@ -108,8 +110,8 @@ namespace onnx_sample
             Matrix<double> z = Matrix<double>.Build.Dense(4, 1);
             z[2, 0] = box.x2 - box.x1;
             z[3, 0] = box.y2 - box.y1;
-            z[0, 0] = box.x1 + z[2, 0];
-            z[1, 0] = box.y1 + z[3, 0];
+            z[0, 0] = box.x1 + z[2, 0]/2;
+            z[1, 0] = box.y1 + z[3, 0]/2;
             return z;
         }
 

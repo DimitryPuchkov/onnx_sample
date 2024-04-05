@@ -41,7 +41,12 @@ namespace onnx_sample
             {
                 var tracker = trackers[i];
                 if (tracker.TimeScinceUpdate == 0)
-                    resultBoxes.Add(tracker.GetState());
+                {
+                    var box = tracker.GetState();
+                    box.object_id = tracker.TrackerID;
+                    resultBoxes.Add(box);
+                }
+                    
                 if (tracker.TimeScinceUpdate > maxAge)
                     trackers.RemoveAt(i);
             }
@@ -58,7 +63,7 @@ namespace onnx_sample
                 trackersBoxes.Add(tracker.GetState());
 
             var costMatrix = getCostMatrix(detections, trackersBoxes);
-            var columnMatches = Solver.Solve(costMatrix).ColumnAssignment;
+            var columnMatches = Solver.Solve(costMatrix, true).ColumnAssignment;
 
             var matches = new List<List<int>>();
             var unmatchedDetections = new List<Box>();
