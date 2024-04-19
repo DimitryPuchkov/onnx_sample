@@ -8,7 +8,9 @@ namespace onnx_sample
 {
     public static class AppConfig
     {
-        public static string ModelPath { get; } = "./mot17-01-frcnn.onnx";
+        //public static string ModelPath { get; } = "./mot17-01-frcnn.onnx";
+        //public static string ModelPath { get; } = "./model_fp16.onnx";
+        public static string ModelPath { get; } = "mot17_dim.onnx";
         public static int ModelInputSize { get; } = 640;
     }
 }

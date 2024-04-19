@@ -12,6 +12,8 @@ using onnx_sample;
 using MathNet.Filtering.Kalman;
 using MathNet.Numerics.LinearAlgebra;
 using LinearAssignment;
+using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Configs;
 
 namespace Onnx_sample
 {
@@ -20,16 +22,42 @@ namespace Onnx_sample
     {
         public static void Main(string[] args)
         {
-            string[] imagesPaths = { "./images/000001.jpg", "./images/000002.jpg", "./images/000003.jpg" };
-            var detector = new DetectionWrapper();
-            var sort = new Sort(15);
-            foreach (string imagePath in imagesPaths)
-            {
-                using Image<Rgb24> image = Image.Load<Rgb24>(imagePath);
-                var dets = detector.Detect(image);
-                var finalBoxes = sort.Update(dets);
-                Console.WriteLine(finalBoxes);
-            }
+
+            //string[] imagesPaths = { "./images/000001.jpg", "./images/000002.jpg", "./images/000003.jpg" };
+            //var detector = new DetectionWrapper();
+            //var sort = new Sort(15);
+            //Image<Rgb24> image = Image.Load<Rgb24>(imagesPaths[0]);
+            //var images = new List<Image<Rgb24>>();
+            //for (int i = 0; i < 30; i++)
+            //{
+            //    images.Add(Image.Load<Rgb24>(imagesPaths[0]));
+            //}
+            //var detsBatch = detector.DetectBatch(images);
+            //var watch = new System.Diagnostics.Stopwatch();
+            //watch.Start();
+            //for (int i = 0; i < 30; i++)
+            //{
+            //    var dets = detector.Detect(image);
+            //    var finalBoxes = sort.Update(dets);
+            //}
+            //watch.Stop();
+
+            //Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
+            //foreach (string imagePath in imagesPaths)
+            //{
+            //    using Image<Rgb24> image = Image.Load<Rgb24>(imagePath);
+            //    var dets = detector.Detect(image);
+            //    var finalBoxes = sort.Update(dets);
+            //    Console.WriteLine(finalBoxes);
+            //}
+
+
+
+
+
+            var config = ManualConfig.Create(DefaultConfig.Instance).WithOptions(ConfigOptions.DisableOptimizationsValidator);
+            BenchmarkRunner.Run<TrackerBenchmarker>(config);
         }
 
 
