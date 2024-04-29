@@ -80,6 +80,39 @@ namespace onnx_sample
             return new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("images", input) };
         }
 
+        private static List<NamedOnnxValue> Preprocess32Mod(Image<Rgb24> image)
+        {
+            image.Mutate(x => x.Resize(AppConfig.ModelInputSize, AppConfig.ModelInputSize));
+            int[] inputDimension = [1, 3, 640, 640];
+
+            Tensor<float> input = new DenseTensor<float>(inputDimension);
+
+            //image.ProcessPixelRows(accessor =>
+            //{
+            //    for (var y = 0; y < image.Height; y++)
+            //    {
+            //        Span<Rgb24> pixelSpan = accessor.GetRowSpan(y);
+            //        for (var x = 0; x < image.Width; x++)
+            //        {
+            //            input[0, 0, y, x] = ((float)pixelSpan[x].R / 255.0f);
+            //            input[0, 1, y, x] = ((float)pixelSpan[x].G / 255.0f);
+            //            input[0, 2, y, x] = ((float)pixelSpan[x].B / 255.0f);
+            //        }
+            //    }
+            //});
+
+            for(var i =  0; i < 640; i++)
+                for(var j = 0; j < 640; j++)
+                {
+                    input[0, 0, i, j] = (float)i;
+                    input[0, 1, i, j] = (float)j;
+                    input[0, 2, i, j] = (float)(i+j);
+                }
+
+
+            return new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("images", input) };
+        }
+
         private static List<Image<Rgb24>> getImageBatch()
         {
             var imagesBatch = new List<Image<Rgb24>>();
@@ -117,38 +150,26 @@ namespace onnx_sample
         }
 
         [Benchmark]
-        public void RunDetector30()
+        public void RunPreprocess32()
         {
-            for(int i = 0; i < 30; i++)
-            {
-                var dets = detector.Detect(image);
-            }
+            var res = Preprocess32(image);
 
         }
 
-        [Benchmark]
-        public void RunModel16()
-        {
-            var res = session16.Run(inps16);
-        }
+        //[Benchmark]
+        //public void RunPreprocess16()
+        //{
+        //    var res = Preprocess16(image);
+
+        //}
 
         [Benchmark]
-        public void RunModel32()
+        public void RunPreprocess32Mod()
         {
-            var res = session32.Run(inps32);
+            var res = Preprocess32Mod(image);
+
         }
 
-        [Benchmark]
-        public void RunDetectorBatch()
-        {
-            var res = detector.DetectBatch(images);
-        }
-
-        [Benchmark]
-        public void RunModelBatch()
-        {
-            var res = sessionBatch.Run(inpsBatch);
-        }
 
     }
 
