@@ -4,16 +4,16 @@ using System.IO;
 using System.Linq;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Microsoft.ML.OnnxRuntime;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Drawing.Processing;
 using onnx_sample;
 using MathNet.Filtering.Kalman;
 using MathNet.Numerics.LinearAlgebra;
 using LinearAssignment;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Configs;
+using System.Drawing;
+using NumSharp;
+using MathNet.Numerics;
+using System.Drawing.Imaging;
 
 namespace Onnx_sample
 {
@@ -23,7 +23,7 @@ namespace Onnx_sample
         public static void Main(string[] args)
         {
 
-            //string[] imagesPaths = { "./images/000001.jpg", "./images/000002.jpg", "./images/000003.jpg" };
+            string[] imagesPaths = { "./images/000001.jpg", "./images/000002.jpg", "./images/000003.jpg" };
             //var detector = new DetectionWrapper();
             //var sort = new Sort(15);
             //Image<Rgb24> image = Image.Load<Rgb24>(imagesPaths[0]);
@@ -52,42 +52,51 @@ namespace Onnx_sample
             //    Console.WriteLine(finalBoxes);
             //}
 
+            Bitmap img = new Bitmap(imagesPaths[0]);
+            int[] inputDimension = [1, 3, 640, 640];
+            img = new Bitmap(img, new Size(640, 640));
+            img = img.Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format24bppRgb);
+            var ndarray = img.ToNDArray(flat: false, copy: false);
+            ndarray = ndarray.astype(typeof(float));
+            ndarray /= 255;
+            ndarray = ndarray.transpose(new int[] { 0, 3, 1, 2 });
+            Tensor<float> input = new DenseTensor<float>(memory: ndarray.ToArray<float>(), inputDimension);
 
 
 
-
-            var config = ManualConfig.Create(DefaultConfig.Instance).WithOptions(ConfigOptions.DisableOptimizationsValidator);
-            BenchmarkRunner.Run<TrackerBenchmarker>(config);
+            //var config = ManualConfig.Create(DefaultConfig.Instance).WithOptions(ConfigOptions.DisableOptimizationsValidator);
+            //BenchmarkRunner.Run<ExperimentBenchhmarker>(config);
+            //BenchmarkRunner.Run<TrackerBenchmarker>(config);
         }
 
 
-        public static void DetectionSample()
-        {
-            var detector = new DetectionWrapper();
+        //public static void DetectionSample()
+        //{
+        //    var detector = new DetectionWrapper();
 
 
-            // Read Image
-            string imageFilePath = "./imagesPaths/000001.jpg";
-            using Image<Rgb24> image = Image.Load<Rgb24>(imageFilePath);
-            var image_orig = image.Clone();
+        //    // Read Image
+        //    string imageFilePath = "./imagesPaths/000001.jpg";
+        //    using Image<Rgb24> image = Image.Load<Rgb24>(imageFilePath);
+        //    var image_orig = image.Clone();
 
-            var final_boxes = detector.Detect(image);
-            DrawBoxes(image, final_boxes);
-        }
+        //    var final_boxes = detector.Detect(image);
+        //    DrawBoxes(image, final_boxes);
+        //}
 
-        public static void DrawBoxes(Image<Rgb24> image, List<Box> boxes, string imagePath = "out.jpg")
-        {
-            foreach (var box in boxes)
-            {
-                int center_x = (box.x1 + box.x2) / 2;
-                int center_y = (box.y1 + box.y2) / 2;
-                int width = Math.Abs(box.x2 - box.x1);
-                int height = Math.Abs(box.y2 - box.y1);
-                Rectangle rectangle = new Rectangle(x: box.x1, y: box.y1, width: width, height: height);
-                var pen = Pens.Solid(Color.Red, 2);
-                image.Mutate(x => x.Draw(pen, rectangle));
-            }
-            image.Save(imagePath);
-        }
+        //public static void DrawBoxes(Image<Rgb24> image, List<Box> boxes, string imagePath = "out.jpg")
+        //{
+        //    foreach (var box in boxes)
+        //    {
+        //        int center_x = (box.x1 + box.x2) / 2;
+        //        int center_y = (box.y1 + box.y2) / 2;
+        //        int width = Math.Abs(box.x2 - box.x1);
+        //        int height = Math.Abs(box.y2 - box.y1);
+        //        Rectangle rectangle = new Rectangle(x: box.x1, y: box.y1, width: width, height: height);
+        //        var pen = Pens.Solid(Color.Red, 2);
+        //        image.Mutate(x => x.Draw(pen, rectangle));
+        //    }
+        //    image.Save(imagePath);
+        //}
     }
 }
