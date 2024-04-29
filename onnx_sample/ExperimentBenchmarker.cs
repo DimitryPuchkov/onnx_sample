@@ -10,6 +10,7 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using NumSharp;
 using System.Drawing;
 using Emgu.CV.Reg;
+using System.Drawing.Imaging;
 
 namespace onnx_sample
 {
@@ -22,11 +23,13 @@ namespace onnx_sample
         {
             int[] inputDimension = [1, 3, 640, 640];
             img = new Bitmap(img, new Size(640, 640));
+            img = img.Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format24bppRgb);
             var ndarray = img.ToNDArray(flat: false, copy: false);
+            ndarray = ndarray.astype(typeof(float));
             ndarray /= 255;
-            ndarray.transpose(new int[] { 2, 0, 1 });
-            Tensor<float> input = new DenseTensor<float>(memory: ndarray.ToArray<float>(), inputDimension);
-            return new List<NamedOnnxValue>();
+            ndarray = ndarray.transpose(new int[] { 0, 3, 1, 2 });
+            Tensor<float> inputTensor = new DenseTensor<float>(memory: ndarray.ToArray<float>(), inputDimension);
+            return new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("images", inputTensor) };
         }
 
         [Benchmark]

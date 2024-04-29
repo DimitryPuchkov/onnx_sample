@@ -30,7 +30,7 @@ namespace onnx_sample
         // Обертка над моделью детекции, включает в себя сессию onnxruntime и различные функии для препроцесса и постпроцесса вида:
         // Preprocess[16|32|Batch] и Postprocess[16|32|Batch] для запуска квантизованной модели (fp16), модели в обычном режиме (fp32) и батчем по 30 кадровЫ
         // Главные функции детектора Dectct и DetectBatch
-        private InferenceSession session = new InferenceSession(AppConfig.ModelPath);
+        public InferenceSession session = new InferenceSession(AppConfig.ModelPath);
 
         public List<Box> Detect(Image<Rgb24> image)
         {
@@ -42,7 +42,7 @@ namespace onnx_sample
             var modelInput = Preprocess32(image);
             var modelOutput = session.Run(modelInput);
 
-            return Postprocess32(modelOutput[0].AsTensor<float>(), scale_x, scale_y);
+            return Postprocess32(modelOutput[0].AsTensor<float>(), 1.0, 1.0);
 
         }
         public List<List<Box>> DetectBatch(List<Image<Rgb24>> images)
@@ -154,7 +154,7 @@ namespace onnx_sample
             return correctBatch;
         }
 
-        private List<NamedOnnxValue> Preprocess32(Image<Rgb24> image)
+        public List<NamedOnnxValue> Preprocess32(Image<Rgb24> image)
         {
             image.Mutate(x => x.Resize(AppConfig.ModelInputSize, AppConfig.ModelInputSize));
             int[] inputDimension = [1, 3, 640, 640];
@@ -178,7 +178,7 @@ namespace onnx_sample
             return new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("images", input) };
         }
 
-        private List<Box> Postprocess32(Tensor<float> outTensor, double scale_x, double scale_y)
+        public List<Box> Postprocess32(Tensor<float> outTensor, double scale_x, double scale_y)
         {
             var correct = new List<Box>();
             for (int i = 0; i < outTensor.Dimensions[2]; i++)

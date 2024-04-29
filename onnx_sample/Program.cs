@@ -23,10 +23,12 @@ namespace Onnx_sample
         public static void Main(string[] args)
         {
 
-            string[] imagesPaths = { "./images/000001.jpg", "./images/000002.jpg", "./images/000003.jpg" };
+            //string[] imagesPaths = { "./images/000001.jpg", "./images/000002.jpg", "./images/000003.jpg" };
             //var detector = new DetectionWrapper();
-            //var sort = new Sort(15);
-            //Image<Rgb24> image = Image.Load<Rgb24>(imagesPaths[0]);
+            ////var sort = new Sort(15);
+            //SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgb24> imageSL = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgb24>(imagesPaths[0]);
+            //var scale_x = (double)imageSL.Width / (double)AppConfig.ModelInputSize;
+            //var scale_y = (double)imageSL.Height / (double)AppConfig.ModelInputSize;
             //var images = new List<Image<Rgb24>>();
             //for (int i = 0; i < 30; i++)
             //{
@@ -52,20 +54,24 @@ namespace Onnx_sample
             //    Console.WriteLine(finalBoxes);
             //}
 
-            Bitmap img = new Bitmap(imagesPaths[0]);
-            int[] inputDimension = [1, 3, 640, 640];
-            img = new Bitmap(img, new Size(640, 640));
-            img = img.Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format24bppRgb);
-            var ndarray = img.ToNDArray(flat: false, copy: false);
-            ndarray = ndarray.astype(typeof(float));
-            ndarray /= 255;
-            ndarray = ndarray.transpose(new int[] { 0, 3, 1, 2 });
-            Tensor<float> input = new DenseTensor<float>(memory: ndarray.ToArray<float>(), inputDimension);
+            //Bitmap img = new Bitmap(imagesPaths[0]);
+            //int[] inputDimension = [1, 3, 640, 640];
+            //img = new Bitmap(img, new Size(640, 640));
+            //img = img.Clone(new Rectangle(0, 0, img.Width, img.Height), PixelFormat.Format24bppRgb);
+            //var ndarray = img.ToNDArray(flat: false, copy: false);
+            //ndarray = ndarray.astype(typeof(float));
+            //ndarray /= 255;
+            //ndarray = ndarray.transpose(new int[] { 0, 3, 1, 2 });
+            //Tensor<float> inputTensor = new DenseTensor<float>(memory: ndarray.ToArray<float>(), inputDimension);
+            //var input = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("images", inputTensor) };
+            //var npout = detector.session.Run(input);
+            //var npres = detector.Postprocess32(npout[0].AsTensor<float>(), 1.0, 1.0);
+
+            //var commonres = detector.Detect(imageSL);
 
 
-
-            //var config = ManualConfig.Create(DefaultConfig.Instance).WithOptions(ConfigOptions.DisableOptimizationsValidator);
-            //BenchmarkRunner.Run<ExperimentBenchhmarker>(config);
+            var config = ManualConfig.Create(DefaultConfig.Instance).WithOptions(ConfigOptions.DisableOptimizationsValidator);
+            BenchmarkRunner.Run<ExperimentBenchhmarker>(config);
             //BenchmarkRunner.Run<TrackerBenchmarker>(config);
         }
 
